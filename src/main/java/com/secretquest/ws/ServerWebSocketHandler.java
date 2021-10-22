@@ -1,20 +1,23 @@
 package com.secretquest.ws;
 
+import org.json.JSONObject;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class ServerWebSocketHandler extends TextWebSocketHandler {
 
   private List<WebSocketSession> sessions = new ArrayList<>();
+  private Queue<String> messages = new ArrayDeque<>();
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -35,20 +38,26 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
     String request = message.getPayload();
+    String username = new JSONObject(request).getString("username");
 
-    String response = String.format("response from server to '%s'", HtmlUtils.htmlEscape(request));
+    String response = String.format("Welcome '%s'", username);
 
-    session.sendMessage(new TextMessage(response));
+    messages.add(response);
   }
 
   @Scheduled(fixedRate = 1000)
   void sendPeriodicMessages() throws IOException {
+
+    if (messages.size() == 0) {
+      return;
+    }
+
+    String newUsername = messages.poll();
+
     for (WebSocketSession session : sessions) {
       System.out.println("session " + session.getId());
       if (session.isOpen()) {
-        String broadcast = "server periodic message " + LocalTime.now();
-
-        session.sendMessage(new TextMessage(broadcast));
+        session.sendMessage(new TextMessage(newUsername));
       }
     }
   }
