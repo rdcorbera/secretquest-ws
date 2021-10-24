@@ -1,64 +1,54 @@
 package com.secretquest.ws;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secretquest.ws.business.models.Player;
+import com.secretquest.ws.infrastructure.Message;
+import com.secretquest.ws.infrastructure.controllers.GameController;
+import com.secretquest.ws.infrastructure.handlers.SessionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 
+@Component
 public class ServerWebSocketHandler extends TextWebSocketHandler {
 
-  private List<WebSocketSession> sessions = new ArrayList<>();
-  private Queue<String> messages = new ArrayDeque<>();
+  @Autowired
+  private SessionHandler sessionHandler;
+  @Autowired
+  private GameController gameController;
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-    sessions.add(session);
+    sessionHandler.getSessions().add(session);
   }
 
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-    WebSocketSession currentSession = sessions.stream()
+    WebSocketSession currentSession = sessionHandler.getSessions().stream()
         .filter(s -> session.getId().equals(s.getId()))
         .findFirst()
         .get();
 
-    sessions.remove(currentSession);
+    sessionHandler.getSessions().remove(currentSession);
   }
 
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
     String request = message.getPayload();
-    String username = new JSONObject(request).getString("username");
+    ObjectMapper mapper = new ObjectMapper();
+    Message msg = mapper.readValue(request, Message.class);
 
-    String response = String.format("Welcome '%s'", username);
-
-    messages.add(response);
-  }
-
-  @Scheduled(fixedRate = 1000)
-  void sendPeriodicMessages() throws IOException {
-
-    if (messages.size() == 0) {
-      return;
-    }
-
-    String newUsername = messages.poll();
-
-    for (WebSocketSession session : sessions) {
-      System.out.println("session " + session.getId());
-      if (session.isOpen()) {
-        session.sendMessage(new TextMessage(newUsername));
-      }
+    switch (msg.getAction()) {
+      case "START_GAME":
+        Player player = mapper.readValue(msg.getBody(), Player.class);
+        gameController.create(player);
     }
   }
 }
