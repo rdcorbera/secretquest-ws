@@ -3,6 +3,7 @@ package com.secretquest.ws.infrastructure.controllers;
 import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.GameStatus;
 import com.secretquest.ws.business.models.Player;
+import com.secretquest.ws.business.usecases.FindGameUseCase;
 import com.secretquest.ws.infrastructure.handlers.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,12 +26,14 @@ public class GameController {
     this.sessionHandler = sessionHandler;
   }
 
-  public void create(Player player) {
-    Game newGame = new Game();
-    newGame.setPlayerOne(player);
-    newGame.setStatus(GameStatus.WAITING_OPPONENTS);
+  public void initGame(Player player) {
+    Game game = new FindGameUseCase().execute(games, player);
 
-    games.add(newGame);
+    if (games.indexOf(game) == -1) {
+      games.add(game);
+    }
+
+    games.add(game);
   }
 
   @Scheduled(fixedRate = 1000)
@@ -41,7 +44,9 @@ public class GameController {
 
     for (WebSocketSession session : sessionHandler.getSessions()) {
       if (session.isOpen()) {
-        session.sendMessage(new TextMessage(games.get(0).toString()));
+        for (Game game : games) {
+          session.sendMessage(new TextMessage(game.toString()));
+        }
       }
     }
   }

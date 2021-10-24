@@ -48,7 +48,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
     switch (msg.getAction()) {
       case "START_GAME":
         Player player = mapper.readValue(msg.getBody(), Player.class);
-        gameController.create(player);
+        gameController.initGame(player);
     }
   }
 }
