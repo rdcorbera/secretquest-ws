@@ -1,19 +1,19 @@
 package com.secretquest.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.Player;
-import com.secretquest.ws.infrastructure.Message;
+import com.secretquest.ws.infrastructure.messaing.Message;
+import com.secretquest.ws.infrastructure.messaing.MessageType;
 import com.secretquest.ws.infrastructure.controllers.GameController;
 import com.secretquest.ws.infrastructure.handlers.SessionHandler;
+import com.secretquest.ws.infrastructure.messaing.dtos.StartGameMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
-import java.io.IOException;
 
 @Component
 public class ServerWebSocketHandler extends TextWebSocketHandler {
@@ -41,14 +41,20 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
   @Override
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
-    String request = message.getPayload();
+    String payload = message.getPayload();
     ObjectMapper mapper = new ObjectMapper();
-    Message msg = mapper.readValue(request, Message.class);
+    Message request = mapper.readValue(payload, Message.class);
 
-    switch (msg.getAction()) {
+    switch (request.getAction()) {
       case "START_GAME":
-        Player player = mapper.readValue(msg.getBody(), Player.class);
-        gameController.initGame(player);
+        Player player = mapper.readValue(request.getBody(), Player.class);
+        Game game = gameController.initGame(player);
+        StartGameMessage response = new StartGameMessage();
+        response.setSessionId(session.getId());
+        response.setType(MessageType.NOTIFICATION);
+        response.setAction("GAME_CREATED");
+        response.setBody(mapper.writeValueAsString(game));
+        session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
     }
   }
 }
