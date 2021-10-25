@@ -2,21 +2,14 @@ package com.secretquest.ws.infrastructure.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secretquest.ws.business.models.Game;
-import com.secretquest.ws.business.models.GameStatus;
 import com.secretquest.ws.business.models.Player;
 import com.secretquest.ws.business.usecases.FindGameUseCase;
-import com.secretquest.ws.infrastructure.handlers.SessionHandler;
 import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.messaing.MessageType;
 import com.secretquest.ws.infrastructure.messaing.PubSubHandler;
-import com.secretquest.ws.infrastructure.messaing.dtos.StartGameMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.secretquest.ws.infrastructure.messaing.dtos;
+package com.secretquest.ws.infrastructure.messaing;
 
 import lombok.Data;
 import lombok.Getter;
