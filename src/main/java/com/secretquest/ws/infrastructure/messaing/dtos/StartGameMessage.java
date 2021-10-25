@@ -8,5 +8,4 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class StartGameMessage extends Message {
 
-  protected String sessionId;
 }

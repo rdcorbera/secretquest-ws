@@ -48,13 +48,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
     switch (request.getAction()) {
       case "START_GAME":
         Player player = mapper.readValue(request.getBody(), Player.class);
-        Game game = gameController.initGame(player);
-        StartGameMessage response = new StartGameMessage();
-        response.setSessionId(session.getId());
-        response.setType(MessageType.NOTIFICATION);
-        response.setAction("GAME_CREATED");
-        response.setBody(mapper.writeValueAsString(game));
-        session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
+        Game game = gameController.initGame(session.getId(), player);
     }
   }
 }

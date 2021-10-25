@@ -13,4 +13,8 @@ public class SessionHandler {
   public List<WebSocketSession> getSessions() {
     return this.sessions;
   }
+
+  public WebSocketSession getSessionById(String sessionId) {
+    return sessions.stream().filter(s -> s.getId().equals(sessionId)).findFirst().get();
+  }
 }
