@@ -8,28 +8,30 @@ import com.secretquest.ws.business.usecases.FindGameUseCase;
 import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.messaing.MessageType;
 import com.secretquest.ws.infrastructure.messaing.PubSubHandler;
+import com.secretquest.ws.infrastructure.repositories.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class GameController {
 
+  private GameRepository gameRepository;
   private PubSubHandler pubSubHandler;
-  private List<Game> games = new ArrayList<>();
 
   @Autowired
-  public GameController(PubSubHandler pubSubHandler) {
+  public GameController(GameRepository gameRepository, PubSubHandler pubSubHandler) {
+    this.gameRepository = gameRepository;
     this.pubSubHandler = pubSubHandler;
   }
 
   public Game initGame(String sessionId, Player player) throws Exception {
+    List<Game> games = gameRepository.list();
     Game game = new FindGameUseCase().execute(games, player);
 
     if (!games.contains(game)) {
-      games.add(game);
+      gameRepository.save(game);
       pubSubHandler.createNewTopic(game.getId().toString());
     }
 
