@@ -22,4 +22,8 @@ public class GameRepository {
   public Optional<Game> findById(String id) {
     return games.stream().filter(g -> g.getId().equals(id)).findFirst();
   }
+
+  public void delete(Game game) {
+    games.remove(game);
+  }
 }

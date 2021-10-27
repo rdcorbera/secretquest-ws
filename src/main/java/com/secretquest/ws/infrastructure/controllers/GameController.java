@@ -9,10 +9,12 @@ import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.messaing.MessageType;
 import com.secretquest.ws.infrastructure.messaing.PubSubHandler;
 import com.secretquest.ws.infrastructure.repositories.GameRepository;
+import com.secretquest.ws.infrastructure.repositories.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class GameController {
@@ -48,5 +50,22 @@ public class GameController {
     pubSubHandler.sendMessage(game.getId().toString(), message);
 
     return game;
+  }
+
+  public void closeGame(String gameId) throws Exception {
+    Optional<Game> gameResult = gameRepository.findById(gameId);
+
+    if (gameResult.isPresent()) {
+      Game game = gameResult.get();
+      ObjectMapper mapper = new ObjectMapper();
+      Message message = new Message();
+      message.setType(MessageType.NOTIFICATION);
+      message.setAction("GAME_CLOSED");
+      message.setBody(mapper.writeValueAsString(game));
+
+      pubSubHandler.sendMessage(game.getId().toString(), message);
+      pubSubHandler.removeTopic(gameId);
+      gameRepository.delete(game);
+    }
   }
 }

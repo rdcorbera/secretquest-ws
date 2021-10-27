@@ -49,6 +49,15 @@ public class PubSubHandler {
     });
   }
 
+  public  void removeTopic(String topicId)
+  {
+    Topic topic = getTopicById(topicId);
+    if(topic!=null)
+    {
+      topics.remove(topic);
+    }
+  }
+
   private Topic getTopicById(String topicId) {
     return topics.stream().filter(t -> t.getTopicId().equals(topicId)).findFirst().get();
   }
