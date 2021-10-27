@@ -1,7 +1,6 @@
 package com.secretquest.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.Player;
 import com.secretquest.ws.infrastructure.controllers.match.MatchController;
 import com.secretquest.ws.infrastructure.controllers.match.PlayCardRequest;

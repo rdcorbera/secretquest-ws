@@ -20,7 +20,7 @@ public class GameRepository {
   }
 
   public Optional<Game> findById(String id) {
-    return games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    return games.stream().filter(g -> g.getId().toString().equals(id)).findFirst();
   }
 
   public void delete(Game game) {
