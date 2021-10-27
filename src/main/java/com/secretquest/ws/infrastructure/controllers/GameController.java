@@ -8,28 +8,32 @@ import com.secretquest.ws.business.usecases.FindGameUseCase;
 import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.messaing.MessageType;
 import com.secretquest.ws.infrastructure.messaing.PubSubHandler;
+import com.secretquest.ws.infrastructure.repositories.GameRepository;
+import com.secretquest.ws.infrastructure.repositories.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class GameController {
 
+  private GameRepository gameRepository;
   private PubSubHandler pubSubHandler;
-  private List<Game> games = new ArrayList<>();
 
   @Autowired
-  public GameController(PubSubHandler pubSubHandler) {
+  public GameController(GameRepository gameRepository, PubSubHandler pubSubHandler) {
+    this.gameRepository = gameRepository;
     this.pubSubHandler = pubSubHandler;
   }
 
   public Game initGame(String sessionId, Player player) throws Exception {
+    List<Game> games = gameRepository.list();
     Game game = new FindGameUseCase().execute(games, player);
 
     if (!games.contains(game)) {
-      games.add(game);
+      gameRepository.save(game);
       pubSubHandler.createNewTopic(game.getId().toString());
     }
 
@@ -48,11 +52,11 @@ public class GameController {
     return game;
   }
 
-  public void closeGame(String gameId) throws Exception
-  {
-    Game game = getGameById(gameId);
-    if(game!=null)
-    {
+  public void closeGame(String gameId) throws Exception {
+    Optional<Game> gameResult = gameRepository.findById(gameId);
+
+    if (gameResult.isPresent()) {
+      Game game = gameResult.get();
       ObjectMapper mapper = new ObjectMapper();
       Message message = new Message();
       message.setType(MessageType.NOTIFICATION);
@@ -61,16 +65,7 @@ public class GameController {
 
       pubSubHandler.sendMessage(game.getId().toString(), message);
       pubSubHandler.removeTopic(gameId);
-      games.remove(game);
+      gameRepository.delete(game);
     }
-  }
-
-  public Game getGameById(String gameId)
-  {
-    return games.stream().filter(s->s.getId().equals(gameId)).findFirst().get();
-  }
-
-  public void playCard(Player player, int cardId) throws  Exception{
-
   }
 }

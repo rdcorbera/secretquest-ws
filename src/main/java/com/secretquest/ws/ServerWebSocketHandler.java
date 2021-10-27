@@ -1,8 +1,9 @@
 package com.secretquest.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.Player;
+import com.secretquest.ws.infrastructure.controllers.match.MatchController;
+import com.secretquest.ws.infrastructure.controllers.match.PlayCardRequest;
 import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.controllers.GameController;
 import com.secretquest.ws.infrastructure.handlers.SessionHandler;
@@ -20,6 +21,8 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
   private SessionHandler sessionHandler;
   @Autowired
   private GameController gameController;
+  @Autowired
+  private MatchController matchController;
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -41,15 +44,16 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
 
     String payload = message.getPayload();
     ObjectMapper mapper = new ObjectMapper();
-    Message request = mapper.readValue(payload, Message.class);
+    Message msg = mapper.readValue(payload, Message.class);
 
-    switch (request.getAction()) {
+    switch (msg.getAction()) {
       case "START_GAME":
-        Player player = mapper.readValue(request.getBody(), Player.class);
-        Game game = gameController.initGame(session.getId(), player);
+        Player player = mapper.readValue(msg.getBody(), Player.class);
+        gameController.initGame(session.getId(), player);
         break;
       case "PLAY_CARD":
-
+        PlayCardRequest request = mapper.readValue(msg.getBody(), PlayCardRequest.class);
+        matchController.playCard(request);
         break;
     }
   }
