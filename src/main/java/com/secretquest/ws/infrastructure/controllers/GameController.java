@@ -2,6 +2,7 @@ package com.secretquest.ws.infrastructure.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secretquest.ws.business.models.Game;
+import com.secretquest.ws.business.models.GameStatus;
 import com.secretquest.ws.business.models.Player;
 import com.secretquest.ws.business.usecases.FindGameUseCase;
 import com.secretquest.ws.infrastructure.messaing.Message;
@@ -35,10 +36,11 @@ public class GameController {
     pubSubHandler.addSubscriber(game.getId().toString(), sessionId);
 
     ObjectMapper mapper = new ObjectMapper();
+    String action = game.getStatus().equals(GameStatus.WAITING_OPPONENTS) ? "GAME_CREATED" : "GAME_COMPLETED";
 
     Message message = new Message();
     message.setType(MessageType.NOTIFICATION);
-    message.setAction("GAME_CREATED");
+    message.setAction(action);
     message.setBody(mapper.writeValueAsString(game));
 
     pubSubHandler.sendMessage(game.getId().toString(), message);
