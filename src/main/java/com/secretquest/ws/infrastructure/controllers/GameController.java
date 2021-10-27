@@ -47,4 +47,30 @@ public class GameController {
 
     return game;
   }
+
+  public void closeGame(String gameId) throws Exception
+  {
+    Game game = getGameById(gameId);
+    if(game!=null)
+    {
+      ObjectMapper mapper = new ObjectMapper();
+      Message message = new Message();
+      message.setType(MessageType.NOTIFICATION);
+      message.setAction("GAME_CLOSED");
+      message.setBody(mapper.writeValueAsString(game));
+
+      pubSubHandler.sendMessage(game.getId().toString(), message);
+      pubSubHandler.removeTopic(gameId);
+      games.remove(game);
+    }
+  }
+
+  public Game getGameById(String gameId)
+  {
+    return games.stream().filter(s->s.getId().equals(gameId)).findFirst().get();
+  }
+
+  public void playCard(Player player, int cardId) throws  Exception{
+
+  }
 }

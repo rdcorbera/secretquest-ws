@@ -47,6 +47,10 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
       case "START_GAME":
         Player player = mapper.readValue(request.getBody(), Player.class);
         Game game = gameController.initGame(session.getId(), player);
+        break;
+      case "PLAY_CARD":
+
+        break;
     }
   }
 }
