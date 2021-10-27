@@ -48,9 +48,9 @@ public class GameController {
     return game;
   }
 
-  public void closeGame(String sessionId) throws Exception
+  public void closeGame(String gameId) throws Exception
   {
-    Game game = getGameById(sessionId);
+    Game game = getGameById(gameId);
     if(game!=null)
     {
       ObjectMapper mapper = new ObjectMapper();
@@ -60,14 +60,14 @@ public class GameController {
       message.setBody(mapper.writeValueAsString(game));
 
       pubSubHandler.sendMessage(game.getId().toString(), message);
-      pubSubHandler.removeTopic(sessionId);
+      pubSubHandler.removeTopic(gameId);
       games.remove(game);
     }
   }
 
-  public Game getGameById(String sessionId)
+  public Game getGameById(String gameId)
   {
-    return games.stream().filter(s->s.getId().equals(sessionId)).findFirst().get();
+    return games.stream().filter(s->s.getId().equals(gameId)).findFirst().get();
   }
 
   public void playCard(Player player, int cardId) throws  Exception{
