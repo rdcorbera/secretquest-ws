@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class Player {
   private String accountId;
   private String nickname;
+  private Deck deck;
 }

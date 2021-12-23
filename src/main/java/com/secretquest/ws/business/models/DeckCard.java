@@ -1,11 +1,10 @@
 package com.secretquest.ws.business.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class Card {
-  private String id;
+public class DeckCard {
+  private int id;
+  private int cardId;
   private int power;
 }
