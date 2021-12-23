@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.GameStatus;
 import com.secretquest.ws.business.models.Player;
+import com.secretquest.ws.business.usecases.AssignDecksUseCase;
 import com.secretquest.ws.business.usecases.FindGameUseCase;
 import com.secretquest.ws.infrastructure.messaing.Message;
 import com.secretquest.ws.infrastructure.messaing.MessageType;
@@ -21,11 +22,16 @@ public class GameController {
 
   private GameRepository gameRepository;
   private PubSubHandler pubSubHandler;
+  private AssignDecksUseCase assignDecksUseCase;
 
   @Autowired
-  public GameController(GameRepository gameRepository, PubSubHandler pubSubHandler) {
+  public GameController(
+      GameRepository gameRepository,
+      PubSubHandler pubSubHandler,
+      AssignDecksUseCase assignDecksUseCase) {
     this.gameRepository = gameRepository;
     this.pubSubHandler = pubSubHandler;
+    this.assignDecksUseCase = assignDecksUseCase;
   }
 
   public Game initGame(String sessionId, Player player) throws Exception {
@@ -41,6 +47,10 @@ public class GameController {
 
     ObjectMapper mapper = new ObjectMapper();
     String action = game.getStatus().equals(GameStatus.WAITING_OPPONENTS) ? "GAME_CREATED" : "GAME_COMPLETED";
+
+    if (action.equals("GAME_COMPLETED")) {
+      assignDecksUseCase.execute(game);
+    }
 
     Message message = new Message();
     message.setType(MessageType.NOTIFICATION);

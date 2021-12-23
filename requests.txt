@@ -1,0 +1,82 @@
+ws://localhost:8080/websocket
+
+INIT GAME:
+
+Request
+{
+    "type":"SEND",
+    "action":"START_GAME",
+    "body":"{\"accountId\":\"1\",\"nickname\":\"rdcorbera\"}"
+}
+
+
+GAME COMPLETED:
+
+Response
+{
+  "id": "b6ffd75c-048a-4f0a-b64e-5ad2be597c94",
+  "playerOne": {
+    "accountId": "1",
+    "nickname": "rdcorbera",
+    "deck": [
+      {
+        "id": 1,
+        "cardId": 1,
+        "power": 50
+      },
+      {
+        "id": 2,
+        "cardId": 1,
+        "power": 50
+      },
+      {
+        "id": 3,
+        "cardId": 2,
+        "power": 100
+      },
+      {
+        "id": 4,
+        "cardId": 2,
+        "power": 100
+      },
+      {
+        "id": 5,
+        "cardId": 14,
+        "power": 700
+      }
+    ]
+  },
+  "playerTwo": {
+    "accountId": "2",
+    "nickname": "calichin",
+    "deck": [
+      {
+        "id": 1,
+        "cardId": 4,
+        "power": 200
+      },
+      {
+        "id": 2,
+        "cardId": 4,
+        "power": 200
+      },
+      {
+        "id": 3,
+        "cardId": 2,
+        "power": 100
+      },
+      {
+        "id": 4,
+        "cardId": 2,
+        "power": 100
+      },
+      {
+        "id": 5,
+        "cardId": 8,
+        "power": 400
+      }
+    ]
+  },
+  "status": "COMPLETED",
+  "matches": []
+}

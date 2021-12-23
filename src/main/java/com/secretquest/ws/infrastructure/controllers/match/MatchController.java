@@ -2,6 +2,7 @@ package com.secretquest.ws.infrastructure.controllers.match;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secretquest.ws.business.models.Card;
 import com.secretquest.ws.business.models.Game;
 import com.secretquest.ws.business.models.Match;
 import com.secretquest.ws.business.models.Player;
@@ -37,7 +38,7 @@ public class MatchController {
 
     Match match = game.playMatch(
         Player.builder().accountId(request.getAccountId()).build(),
-        cardRepository.findById(request.getCardId()).get()
+        new Card("1", 0) //cardRepository.findById(1).get()
     );
 
     ObjectMapper mapper = new ObjectMapper();
